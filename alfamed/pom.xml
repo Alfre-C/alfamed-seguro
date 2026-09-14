@@ -33,6 +33,20 @@
       <version>${junit.version}</version>
       <scope>test</scope>
     </dependency>
+    <!-- Dependencia agregada para manejar las respuestas en formato JSON-->
+    <dependency>
+      <groupId>org.json</groupId>
+      <artifactId>json</artifactId>
+      <version>20240303</version>
+    </dependency>
+    <!--******************************************************************-->
+    <!-- Dependencia agregada para conectar a la base de datos-->
+    <dependency>
+      <groupId>org.postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+      <version>42.7.7</version>
+    </dependency>
+    <!--******************************************************-->
   </dependencies>
   <build>
     <plugins>
