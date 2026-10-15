@@ -1,0 +1,5 @@
+py\una\pol\sd\udp\MedicamentosClient.class
+py\una\pol\sd\App.class
+py\una\pol\sd\tcp\TurnosClient.class
+py\una\pol\sd\tcp\CopagosServer.class
+py\una\pol\sd\db\SeguroDB.class
