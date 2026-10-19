@@ -9,9 +9,10 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class SeguroDB {
+    //Recordar que si no conecta es por que hay que cambiar el password
     private static final String URL = "jdbc:postgresql://localhost:5432/db_alfamed";// nombre de la base de datos
     private static final String USER = "postgres";// ingresar el usuario
-    private static final String PASS = "1234";// ingresar la contraseña de postgresql
+    private static final String PASS = "postgres";// ingresar la contraseña de postgresql
 
     public static Connection getConnection() throws Exception {
         return DriverManager.getConnection(URL, USER, PASS);
