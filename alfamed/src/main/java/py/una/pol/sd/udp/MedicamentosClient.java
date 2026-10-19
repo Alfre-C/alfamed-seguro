@@ -3,6 +3,7 @@ package py.una.pol.sd.udp;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.util.Scanner;
 import org.json.JSONObject;
 
 public class MedicamentosClient {
@@ -10,29 +11,51 @@ public class MedicamentosClient {
         String host = "localhost";
         int port = 7000; // Puerto UDP del servidor MedTec
 
-        System.out.println("Enviando solicitud UDP de medicamentos a MedTec...");
+        System.out.println("Iniciando cliente UDP para MedTec...");
+        System.out.println("Escribe 'GET_MEDICAMENTOS' para consultar o 'Bye' para salir.");
 
-        try (DatagramSocket socket = new DatagramSocket()) {
-            socket.setSoTimeout(3000); // Timeout de 3 segundos para la respuesta
-
-            String mensaje = "GET_MEDICAMENTOS";
-            byte[] bufferOut = mensaje.getBytes();
-
-            InetAddress address = InetAddress.getByName(host);
-            DatagramPacket packetOut = new DatagramPacket(bufferOut, bufferOut.length, address, port);
-            socket.send(packetOut);
-
-            // Recibir respuesta
-            byte[] bufferIn = new byte[1024];
-            DatagramPacket packetIn = new DatagramPacket(bufferIn, bufferIn.length);
-            socket.receive(packetIn);
-
-            String respuestaStr = new String(packetIn.getData(), 0, packetIn.getLength()).trim();
+        try (DatagramSocket socket = new DatagramSocket();
+             Scanner scanner = new Scanner(System.in)) {
             
-            // Parsear y mostrar el JSON recibido
-            JSONObject jsonResp = new JSONObject(respuestaStr);
-            System.out.println("Respuesta recibida del servidor MedTec:");
-            System.out.println(jsonResp.toString(4)); // Imprime el JSON formateado
+            socket.setSoTimeout(3000); // Timeout de 3 segundos para la respuesta
+            InetAddress address = InetAddress.getByName(host);
+
+            while (true) {
+                System.out.print("\nIngrese mensaje para el servidor: ");
+                String mensaje = scanner.nextLine().trim();
+
+                // Condición de salida
+                if ("Bye".equalsIgnoreCase(mensaje)) {
+                    System.out.println("Cerrando sesión de cliente...");
+                    break;
+                }
+
+                // Enviar datagrama al servidor
+                byte[] bufferOut = mensaje.getBytes();
+                DatagramPacket packetOut = new DatagramPacket(bufferOut, bufferOut.length, address, port);
+                socket.send(packetOut);
+
+                try {
+                    // Recibir respuesta
+                    byte[] bufferIn = new byte[1024];
+                    DatagramPacket packetIn = new DatagramPacket(bufferIn, bufferIn.length);
+                    socket.receive(packetIn);
+
+                    String respuestaStr = new String(packetIn.getData(), 0, packetIn.getLength()).trim();
+                    
+                    // Validar si la respuesta es un JSON válido o un mensaje de texto plano
+                    if (respuestaStr.startsWith("{")) {
+                        JSONObject jsonResp = new JSONObject(respuestaStr);
+                        System.out.println("Respuesta recibida del servidor MedTec:");
+                        System.out.println(jsonResp.toString(4));
+                    } else {
+                        System.out.println("Respuesta del servidor: " + respuestaStr);
+                    }
+
+                } catch (java.net.SocketTimeoutException e) {
+                    System.err.println("El servidor no respondió a tiempo (Timeout).");
+                }
+            }
 
         } catch (Exception e) {
             System.err.println("Error en la comunicación UDP: " + e.getMessage());
@@ -40,23 +63,3 @@ public class MedicamentosClient {
         }
     }
 }
-
-    /*Originalmente era asi */
-    /*public static JSONObject consultarStock() throws Exception {
-        DatagramSocket socket = new DatagramSocket();
-
-        byte[] msg = "GET_MEDICAMENTOS".getBytes();
-        DatagramPacket packet = new DatagramPacket(msg, msg.length,
-                InetAddress.getByName("localhost"), 7000);
-
-        socket.send(packet);
-
-        byte[] buffer = new byte[1024];
-        DatagramPacket resp = new DatagramPacket(buffer, buffer.length);
-        socket.receive(resp);
-
-        String json = new String(resp.getData(), 0, resp.getLength());
-        socket.close();
-
-        return new JSONObject(json);
-    }*/
